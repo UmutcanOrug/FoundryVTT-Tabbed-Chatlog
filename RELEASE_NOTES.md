@@ -27,4 +27,5 @@ Validation: 25 automated modern-v12 schema/hook scenarios and a real-browser
 regression using the upstream CPR v0.92.4 chat renderer and stat-card template.
 The browser test reproduces the reported validation error on 1.6.6 and passes
 with the fixed version. It also checks roll/OOC routing, privacy and tab height.
+CI uses the hosted runner's preinstalled Chrome for this browser regression.
 No live licensed Foundry or Forge world was available during validation.
