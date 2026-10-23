@@ -9,6 +9,10 @@ nav.tabbedchatlog.tabs {
   right: 0;
 
   display: flex;
+  flex: 0 0 30px;
+  height: 30px;
+  min-height: 30px;
+  max-height: 30px;
   flex-direction: row;
   justify-content: space-between;
   align-items: stretch;
