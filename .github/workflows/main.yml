@@ -1,45 +1,54 @@
-name: Module CI/CD
+name: Publish v12 Maintenance Release
 
-on: [push]
+on:
+  push:
+    branches: [maintenance/v12]
+    paths: [RELEASE_NOTES.md]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tabbed-chatlog-v12-release
+  cancel-in-progress: false
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    # create a zip file with all files required by the module to add to the release
-    - run: zip -r ./module.zip module.json tabbed-chatlog.js languages/ styles/
-
-    # Get the version from 'module.json'
-    - name: Get Version
-      shell: bash
-      id: get-version
-      run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
-
-    # Create a release for this specific version
-    - name: Create Release
-      id: create_version_release
-      uses: ncipollo/release-action@v1
-      with:
-        allowUpdates: true # set this to false if you want to prevent updating existing releases
-        name: Release ${{ steps.get-version.outputs.version }}
-        draft: false
-        prerelease: false
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: './module.json,./module.zip'
-        tag: ${{ steps.get-version.outputs.version }}
-
-    # Update the 'latest' release
-    - name: Create Release
-      id: create_latest_release
-      uses: ncipollo/release-action@v1
-      if: endsWith(github.ref, 'master')
-      with:
-        allowUpdates: true
-        name: Latest
-        draft: false
-        prerelease: false
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: './module.json,./module.zip'
-        tag: latest
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate v12 behavior and manifest
+        run: |
+          node --check tabbed-chatlog.js
+          node --test chat-v12.test.cjs
+      - name: Package runtime files for Forge
+        run: |
+          zip -r module.zip module.json tabbed-chatlog.js languages styles LICENSE LICENSE.md
+          unzip -Z1 module.zip
+      - name: Publish without changing latest or existing releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="v12-$(node -p 'require("./module.json").version')"
+          test "$TAG" = "v12-1.6.6"
+          LATEST_BEFORE=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.id')
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" > /dev/null 2>&1; then
+            echo "Release already exists; refusing to replace it."
+            exit 1
+          fi
+          gh release create "$TAG" module.json module.zip \
+            --target "$GITHUB_SHA" --draft --latest=false \
+            --title "Tabbed Chatlog 1.6.6 - Foundry v12.343" \
+            --notes-file RELEASE_NOTES.md
+          gh release edit "$TAG" --draft=false --latest=false
+          LATEST_AFTER=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.id')
+          test "$LATEST_BEFORE" = "$LATEST_AFTER"
+          mkdir verify
+          gh release download "$TAG" --dir verify --pattern module.json --pattern module.zip
+          cmp module.json verify/module.json
+          cmp module.zip verify/module.zip
