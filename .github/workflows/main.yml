@@ -24,6 +24,11 @@ jobs:
         run: |
           node --check tabbed-chatlog.js
           node --test chat-v12.test.cjs
+      - name: Test actual Cyberpunk RED v0.92.4 roll cards in Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser-deps" --no-save --ignore-scripts --no-package-lock playwright@1.58.2 jquery@3.7.1 handlebars@4.7.8
+          "$RUNNER_TEMP/browser-deps/node_modules/.bin/playwright" install --with-deps chromium
+          NODE_MODULES_DIR="$RUNNER_TEMP/browser-deps/node_modules" node chat-cyberpunk.test.cjs
       - name: Package runtime files for Forge
         run: |
           zip -r module.zip module.json tabbed-chatlog.js languages styles LICENSE LICENSE.md
@@ -35,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="v12-$(node -p 'require("./module.json").version')"
-          test "$TAG" = "v12-1.6.6"
+          test "$TAG" = "v12-1.6.7"
           LATEST_BEFORE=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.id')
           if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" > /dev/null 2>&1; then
             echo "Release already exists; refusing to replace it."
@@ -43,7 +48,7 @@ jobs:
           fi
           gh release create "$TAG" module.json module.zip \
             --target "$GITHUB_SHA" --draft --latest=false \
-            --title "Tabbed Chatlog 1.6.6 - Foundry v12.343" \
+            --title "Tabbed Chatlog 1.6.7 - Foundry v12.343 / Cyberpunk RED" \
             --notes-file RELEASE_NOTES.md
           gh release edit "$TAG" --draft=false --latest=false
           LATEST_AFTER=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.id')
