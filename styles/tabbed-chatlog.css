@@ -1,56 +1,84 @@
-.tabbedchatlog.tabs {
-    flex: 0;
-    margin: 0 0 5px;
-    border-bottom: 1px solid #ff6400;
-    box-shadow: 0 0 10px red;
+nav.tabbedchatlog.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  pointer-events: auto;
+
+  width: 100%;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+
+  margin: 0;
+  padding: 0;
+
+  border-bottom: 1px solid #ff6400;
+  box-shadow: 0 0 10px red;
+  background: rgba(0, 0, 0, 0.85);
 }
 
-.tabbedchatlog .item.active {
-    color: #FFF;
-    border: 1px solid red;
-    border-bottom: none;
-    box-shadow: 0 0 6px inset #ff6400;
-    border-radius: 5px 5px 0 0;
+/* Base tab style */
+nav.tabbedchatlog.tabs > a.item {
+  flex: 1 1 0;
+  text-align: center;
+
+  height: 28px;
+  line-height: 28px;
+
+  margin: 0;
+  padding: 0;
+
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto;
+
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-a.item.rolls.active {}
-
-.tabbedchatlog .item {
-    height: 18px;
-    flex: 1;
+/* IC tab – slightly larger and more dominant */
+nav.tabbedchatlog.tabs > a.item.ic {
+  flex: 1.3 1 0;
+  font-size: 1.05em;
+  letter-spacing: 0.04em;
 }
 
-.type0 {
-    display: none;
+/* Rolls & OOC – slightly smaller */
+nav.tabbedchatlog.tabs > a.item.rolls,
+nav.tabbedchatlog.tabs > a.item.ooc {
+  flex: 1 1 0;
+  font-size: 0.9em;
+  opacity: 0.9;
 }
 
-.type1 {
-    display: none;
+/* Active tab highlight */
+nav.tabbedchatlog.tabs > a.item.active {
+  background: linear-gradient(to bottom, #ff6400, #aa2e00);
+  color: #fff;
 }
 
-.type4 {
-    display: none;
+/* Slight spacing below tabs (safe) */
+#chat-controls,
+#chat-log {
+  margin-top: 4px;
 }
 
-.type5 {
-    display: none;
-}
-
-.hardHide {
-    display: none !important;
-}
-
-#icNotification {
-    top: 35px;
-    right: 196px;
-}
-
-#oocNotification {
-    top: 35px;
-    right: 20px;
-}
-
+/* Notifications shouldn't block clicks on the tabs */
+#icNotification,
+#oocNotification,
 #rollsNotification {
-    top: 35px;
-    right: 118px;
+  z-index: 1002;
+  pointer-events: none;
+  position: absolute;
+  right: 4px;
+  top: 0;
+  font-size: 10px;
+}
+
+.chat-message.hardHide {
+  display: none !important;
 }
