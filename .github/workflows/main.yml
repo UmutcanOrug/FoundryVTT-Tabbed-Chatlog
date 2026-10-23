@@ -27,8 +27,7 @@ jobs:
       - name: Test actual Cyberpunk RED v0.92.4 roll cards in Chromium
         run: |
           npm install --prefix "$RUNNER_TEMP/browser-deps" --no-save --ignore-scripts --no-package-lock playwright@1.58.2 jquery@3.7.1 handlebars@4.7.8
-          "$RUNNER_TEMP/browser-deps/node_modules/.bin/playwright" install --with-deps chromium
-          NODE_MODULES_DIR="$RUNNER_TEMP/browser-deps/node_modules" node chat-cyberpunk.test.cjs
+          CHROME_PATH="$(command -v google-chrome)" NODE_MODULES_DIR="$RUNNER_TEMP/browser-deps/node_modules" node chat-cyberpunk.test.cjs
       - name: Package runtime files for Forge
         run: |
           zip -r module.zip module.json tabbed-chatlog.js languages styles LICENSE LICENSE.md
