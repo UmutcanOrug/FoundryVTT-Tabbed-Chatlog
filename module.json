@@ -2,7 +2,7 @@
   "id": "tabbed-chatlog",
   "title": "Tabbed Chatlog",
   "description": "Splits the Chatlog into In Character (per scene), Rolls (per scene), and Out of Character (global).",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "authors": [{"name": "Umutcan Orug (fork of Cody Swendrowski)"}],
   "esmodules": [
     "tabbed-chatlog.js"
@@ -44,8 +44,8 @@
     }
   ],
   "url": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog",
-  "manifest": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v12-1.6.6/module.json",
-  "download": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v12-1.6.6/module.zip",
+  "manifest": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v12-1.6.7/module.json",
+  "download": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v12-1.6.7/module.zip",
   "compatibility": {
     "minimum": "12.343",
     "verified": "12.343",
