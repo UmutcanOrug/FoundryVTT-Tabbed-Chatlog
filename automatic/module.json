@@ -1,0 +1,21 @@
+{
+  "id": "tabbed-chatlog",
+  "title": "Tabbed Chatlog",
+  "description": "IC, Rolls and OOC tabs. Automatically selects the Foundry v13 or v14 implementation.",
+  "version": "1.8.0",
+  "authors": [{"name": "Umutcan Orug (fork of Cody Swendrowski)"}],
+  "esmodules": ["loader.js"],
+  "styles": [],
+  "languages": [
+    {"lang": "en", "name": "English", "path": "languages/en.json"},
+    {"lang": "es", "name": "Spanish", "path": "languages/es.json"},
+    {"lang": "cn", "name": "Chinese", "path": "languages/cn.json"},
+    {"lang": "zh-tw", "name": "Traditional Chinese", "path": "languages/zh-tw.json"},
+    {"lang": "de", "name": "German", "path": "languages/de.json"},
+    {"lang": "ko", "name": "Korean", "path": "languages/ko.json"}
+  ],
+  "url": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog",
+  "manifest": "https://raw.githubusercontent.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/maintenance/v13/automatic/module.json",
+  "download": "https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/compat-1.8.0/module.zip",
+  "compatibility": {"minimum": "13.351", "verified": "14", "maximum": "14"}
+}
