@@ -1,31 +1,41 @@
-Maintenance backport for Foundry VTT **12.343 (Version 12 Closing)**.
+Tabbed Chatlog for **Foundry VTT v13.351**, including **Lancer 3.1.3**.
 
-- Fixes the 1.6.6 validation error: type: "2" is not a valid ChatMessage type.
-- Uses numeric ChatMessage.style and leaves the string document type untouched.
-- Recognizes Cyberpunk RED - CORE v0.92.4 .rollcard messages without native rolls.
-- Selected actor tokens speak In Character for ordinary chat input.
-- Explicit /ooc, emotes, rolls, whispers and GURPS system messages retain their types.
-- Preserves per-scene IC/roll filters, global OOC, notifications and auto-navigation.
-- Keeps the tab bar at 30 pixels instead of allowing it to fill the sidebar.
-- Private rolls remain in Rolls with recipient checks; blind cards stay hidden from non-GMs.
-- Fixes scene webhook form saving and protects private/blind messages from Discord forwarding.
-- Uses relative module asset paths and a ZIP with module.json at the root for Forge.
+- Fixes the v14-only compatibility restriction which hid the module in v13 and
+  displayed "Requires Core Update". There is no need to upgrade Foundry to v14.
+- Uses v13's renderChatMessageHTML hook and numeric ChatMessage.style, without
+  writing numeric document types.
+- Ordinary chat with a selected actor token speaks In Character. Explicit
+  /ooc, whispers, emotes, rolls and programmatic system cards retain their intent.
+- Lancer native rolls go to Rolls even when their message style is IC.
+- Preserves scene filters, private/blind/self-roll visibility, notifications,
+  compact tabs and global OOC. Refilters messages in ChatLog popouts too.
+- Scene webhook configuration supports the v13 ApplicationV2 document API.
 
-Install through Forge Bazaar > Custom Modules > Install via Manifest URL:
+Recommended automatic v13/v14 channel, including on Forge:
 
-https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v12-1.6.7/module.json
+https://raw.githubusercontent.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/maintenance/v13/automatic/module.json
 
-Disable "Install from Bazaar if available" when installing this specific fork.
-Replace the old 1.6.6 installation using this new manifest URL; its pinned update
-URL will not discover this release automatically.
+The automatic package 1.8.0 contains both implementations. It reads the running
+Foundry core generation and loads only that generation's code and CSS: v13 uses
+the new 1.7.2 implementation; v14 uses the unchanged 1.7.1 implementation. It does
+not decide based on the game system's version. Future update checks use this
+dedicated manifest, not GitHub's global latest URL.
 
-This release supports **12.343 only**. Its manifest and download links are pinned
-to this release, and it is **not** marked as GitHub's latest release. Existing
-v13/v14 releases, assets, tags and the master branch are left untouched.
+For a strictly v13-only installation instead:
 
-Validation: 25 automated modern-v12 schema/hook scenarios and a real-browser
-regression using the upstream CPR v0.92.4 chat renderer and stat-card template.
-The browser test reproduces the reported validation error on 1.6.6 and passes
-with the fixed version. It also checks roll/OOC routing, privacy and tab height.
-CI uses the hosted runner's preinstalled Chrome for this browser regression.
-No live licensed Foundry or Forge world was available during validation.
+https://github.com/UmutcanOrug/FoundryVTT-Tabbed-Chatlog/releases/download/v13-1.7.2/module.json
+
+Replace an existing generic-latest installation by installing through the new
+manifest once. GitHub's /releases/latest/download URL cannot select a different
+asset for each Foundry version. On Forge use Bazaar > Custom Modules > Install
+via Manifest URL, with "Install from Bazaar if available" disabled. Reload the
+world and enable Tabbed Chatlog in Manage Modules. World settings keep the same
+module ID, tabbed-chatlog; do not delete world data.
+
+Neither release is marked Latest. Existing releases/assets/tags, the v12 branch
+and the master branch remain unchanged.
+
+Validation: 26 v13 hook/schema scenarios; browser regression with the actual
+Lancer 3.1.3 renderer and stat template from upstream commit
+13ffe799baf2ec3976f78c6e9eb5abf8799bc67d; five automatic-loader/isolation tests.
+These are automated harness tests, not a live licensed Foundry/Forge world.

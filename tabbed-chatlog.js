@@ -2,8 +2,7 @@ let currentTab = "ic";
 let salonEnabled = false;
 let turndown = undefined;
 
-// V12.343 stores IC/OOC in style; type is reserved for document subtypes.
-const cyberpunkRollCache = new WeakMap();
+// V13 stores IC/OOC in style; type is reserved for document subtypes.
 function getViewedSceneId() {
   return canvas?.scene?.id ?? game.scenes?.current?.id ?? game.scenes?.active?.id ?? null;
 }
@@ -13,23 +12,7 @@ function isWhisperMessage(msg) {
 }
 
 function isRollMessage(msg) {
-  return !!msg?.isRoll || (Array.isArray(msg?.rolls) && msg.rolls.length > 0)
-    || isCyberpunkRollMessage(msg);
-}
-
-function isCyberpunkRollMessage(msg) {
-  if (game.system?.id !== "cyberpunk-red-core" || !msg || typeof msg !== "object") return false;
-  const content = getMessageContent(msg);
-  if (typeof content !== "string" || !content.includes("rollcard")) return false;
-  const cached = cyberpunkRollCache.get(msg);
-  if (cached?.content === content) return cached.isRoll;
-
-  // CPR v0.92.4 renders its rolls as HTML, without populating ChatMessage.rolls.
-  const template = document.createElement("template");
-  template.innerHTML = content;
-  const isRoll = !!template.content.querySelector(".rollcard");
-  cyberpunkRollCache.set(msg, {content, isRoll});
-  return isRoll;
+  return !!msg?.isRoll || (Array.isArray(msg?.rolls) && msg.rolls.length > 0);
 }
 
 function normalizeChatStyle(value) {
@@ -256,7 +239,7 @@ applyFiltersToChatLog();
     });
 });
 
-Hooks.on("renderChatMessage", (chatMessage, html, context) => {
+Hooks.on("renderChatMessageHTML", (chatMessage, html, context) => {
   if (shouldHideDueToStreamView()) return;
 
   const $html = $(html);
@@ -322,7 +305,7 @@ Hooks.on("preCreateChatMessage", (chatMessage, data = {}, options, userId) => {
     }
 
     if (game.settings.get('tabbed-chatlog', 'icChatInOoc') && currentTab == "ooc") {
-        if (style == CONST.CHAT_MESSAGE_STYLES.IC && !selectedToken) {
+        if (style == CONST.CHAT_MESSAGE_STYLES.IC && !selectedToken && !isRollMessage(chatMessage)) {
             const user = getMessageUser(chatMessage, data);
             speaker = {scene: null, actor: null, token: null, alias: user?.name ?? game.user?.name ?? ""};
             updatePendingChatMessage(chatMessage, data, {
@@ -479,13 +462,14 @@ Hooks.on("canvasReady", () => {
 
 
 Hooks.on("renderSceneConfig", (app, html) => {
-  if (app.object.compendium) return;
+  const scene = app.document ?? app.object;
+  if (!scene || scene.compendium) return;
   html = $(html);
   if (html.find('input[name="flags.tabbed-chatlog.webhook"]').length) return;
   const group = $('<div class="form-group"></div>');
   $("<label></label>").text(game.i18n.localize("TC.SETTINGS.IcSceneWebhookName")).appendTo(group);
   $("<input>").attr({type: "url", name: "flags.tabbed-chatlog.webhook", placeholder: "Webhook"})
-    .val(app.object.getFlag("tabbed-chatlog", "webhook") ?? "").appendTo(group);
+    .val(scene.getFlag("tabbed-chatlog", "webhook") ?? "").appendTo(group);
   $('<p class="notes"></p>').text(game.i18n.localize("TC.SETTINGS.IcSceneWebhookHint")).appendTo(group);
   const basic = html.find('.tab[data-tab="basic"]').first();
   (basic.length ? basic : html.find(".form-group").last().parent()).append(group);
@@ -1575,13 +1559,8 @@ var TurndownService = (function () {
 }());
 
 function applyFiltersToChatLog() {
-  // Update existing DOM immediately when a tab or viewed scene changes.
-  const root =
-    document.querySelector("#chat-log") ||
-    document.querySelector("#chat-messages") ||
-    document;
-
-  const elements = root.querySelectorAll(".chat-message");
+  // Include both the sidebar and any V13 ChatLog popout.
+  const elements = document.querySelectorAll(".chat-message[data-message-id], .message[data-message-id]");
   for (const el of elements) {
     // Foundry usually provides data-message-id on the LI. Be tolerant.
     const messageId =
@@ -1593,7 +1572,7 @@ function applyFiltersToChatLog() {
     const msg = messageId ? game.messages.get(messageId) : null;
 
     if (msg) {
-      // Use the same logic as renderChatMessage so we also clear/add hardHide correctly.
+      // Use the same logic as the render hook when revisiting existing messages.
       applyVisibilityToMessageElement(msg, $(el));
       continue;
     }
