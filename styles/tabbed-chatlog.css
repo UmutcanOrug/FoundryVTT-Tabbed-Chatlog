@@ -83,6 +83,7 @@ nav.tabbedchatlog.tabs > a.item.active {
   font-size: 10px;
 }
 
-.chat-message.hardHide {
+.chat-message.hardHide,
+.message.hardHide {
   display: none !important;
 }
